@@ -170,7 +170,7 @@ class MyParser {
     
     /* Process one items-???.xml file.
      */
-    static void processFile(File xmlFile) {
+    static void processFile(File xmlFile) throws ParseException {
         Document doc = null;
         try {
             doc = builder.parse(xmlFile);
@@ -197,7 +197,9 @@ class MyParser {
         }
     }
     
-    public static void extractData(Element n, String id) {
+    public static void extractData(Element n, String id) throws ParseException {
+    	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+    	SimpleDateFormat s = new SimpleDateFormat("MMM-dd-yy hh:mm:ss");
     	Element name = getElementByTagNameNR(n,"Name");
     	Element[] categories = getElementsByTagNameNR(n, "Category");
     	Element currently = getElementByTagNameNR(n, "Currently");
@@ -212,6 +214,9 @@ class MyParser {
     	Element ends = getElementByTagNameNR(n, "Ends");
     	Element seller = getElementByTagNameNR(n, "Seller");
     	Element description = getElementByTagNameNR(n, "Description");
+    	
+    	Date startDate = s.parse(getElementText(started));
+    	Date endDate = s.parse(getElementText(ends));
     	
     	//write Item table
     	writers[0].print(id);
@@ -243,9 +248,9 @@ class MyParser {
     	
     	writers[0].print(getElementText(country));
     	writers[0].print(columnSeparator);
-    	writers[0].print(getElementText(started));
+    	writers[0].print(sdf.format(startDate));
     	writers[0].print(columnSeparator);
-    	writers[0].print(getElementText(ends));
+    	writers[0].print(sdf.format(endDate));
     	writers[0].print(columnSeparator);
     	
     	//check seller
@@ -270,6 +275,7 @@ class MyParser {
     	{
     		Element amount = getElementByTagNameNR(bidlist[i],"Amount");
     		Element time = getElementByTagNameNR(bidlist[i],"Time");
+    		Date timeDate = s.parse(getElementText(time));
     		Element bidder = getElementByTagNameNR(bidlist[i],"Bidder");
     		Attr bidderID = bidder.getAttributeNode("UserID");
     		Attr bidderRating = bidder.getAttributeNode("Rating");
@@ -281,7 +287,7 @@ class MyParser {
     		writers[2].print(columnSeparator);
     		writers[2].print(bidderID.getValue());
     		writers[2].print(columnSeparator);
-    		writers[2].print(getElementText(time));
+    		writers[2].print(sdf.format(timeDate));
     		writers[2].print(columnSeparator);
     		writers[2].print(getElementText(amount));
     		writers[2].print(columnSeparator);
@@ -311,7 +317,7 @@ class MyParser {
     	
     }
     
-    public static void main (String[] args) throws IOException {
+    public static void main (String[] args) throws IOException, ParseException {
 
         /* Initialize parser. */
         try {
